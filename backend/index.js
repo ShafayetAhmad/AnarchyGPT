@@ -5,6 +5,13 @@ const port = process.env.PORT || 5000;
 require("dotenv").config();
 app.use(express.json());
 
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
+
 const { Client } = require("pg");
 const client = new Client({
   host: process.env.DB_host,
@@ -24,6 +31,10 @@ app.get("/getUsers", (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
+});
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
 app.listen(port, () => {

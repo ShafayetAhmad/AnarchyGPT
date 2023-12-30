@@ -11,23 +11,10 @@ import {
   faSquarePen,
 } from "@fortawesome/free-solid-svg-icons";
 import { faRocketchat } from "@fortawesome/free-brands-svg-icons";
+import { axiosPublic } from "../axiosPublic/axiosPublic";
 
 const UserHompage = () => {
-  const navigate = useNavigate();
-  const { logout, user, loading } = useContext(AuthContext);
-  const [showUserModal, setShowUserModal] = useState(false);
-  console.log(showUserModal);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/auth/login");
-  };
-  if (loading) return <h1>Loading...</h1>;
-  if (!user) {
-    navigate("/auth/login");
-  }
-
-  const questions = [
+  const qstn = [
     {
       question: "What is your favorite color?",
       answer: "I don't have a favorite color as I'm an AI.",
@@ -260,6 +247,10 @@ const UserHompage = () => {
     },
   ];
 
+  axiosPublic.get("/getUsers").then((res) => {
+    console.log(res.data);
+  });
+
   const titles = [
     "Discussing the Future of Remote Work",
     "Favorite Travel Destinations",
@@ -291,6 +282,41 @@ const UserHompage = () => {
     "Science Fiction: Exploring New Worlds",
     "Social Impact Projects and Initiatives",
   ];
+  const navigate = useNavigate();
+  const { logout, user, loading } = useContext(AuthContext);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const [questions, setQuestions] = useState(qstn);
+
+  const handleAskBtn = () => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+
+    for (let i = 0; i < 200; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters.charAt(randomIndex);
+    }
+
+    const newQuestion = {
+      question: query,
+      answer: result,
+    };
+
+    setQuestions([...questions, newQuestion]);
+    setQuery("");
+    document.getElementById("query").value = "";
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth/login");
+  };
+  if (loading) return <h1>Loading...</h1>;
+  if (!user) {
+    navigate("/auth/login");
+  }
 
   return (
     <div className="grid grid-cols-10 rounded-xl h-screen text-white">
@@ -396,10 +422,13 @@ const UserHompage = () => {
             <input
               type="text"
               name="query"
+              id="query"
               placeholder="Ask AnarchyGPT"
+              onChange={(e) => setQuery(e.target.value)}
               className="border-2 border-slate-500 bg-[#2c3032] rounded-md px-4 py-2 mb-3 w-96"
             />
-            <button>
+
+            <button onClick={handleAskBtn}>
               <FontAwesomeIcon
                 icon={faSearch}
                 color="white"
