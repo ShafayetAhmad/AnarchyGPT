@@ -1,6 +1,20 @@
+import { useContext } from "react";
 import { TypeAnimation } from "react-type-animation";
+import { AuthContext } from "../AuthProvider/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 const GuestHomepage = () => {
+  const navigate = useNavigate();
+  const handleGithubLogin = () => {
+    const result = githubLogin();
+    console.log(result);
+  };
+
+  const handleGoogle = () => {
+    const result = googleLogin();
+    console.log(result);
+  };
+  const { githubLogin, googleLogin, user, loading } = useContext(AuthContext);
   const conversationPrompts = [
     "Tell me about your day.",
     1000,
@@ -33,6 +47,10 @@ const GuestHomepage = () => {
     "What's a skill you've always wanted to learn?",
     1000,
   ];
+  if (loading) return <h1>Loading...</h1>;
+  if (user) {
+    navigate("/userhome");
+  }
   return (
     <div className="grid grid-cols-10">
       <div className="lg:col-span-6 bg-[#00002e]">
@@ -61,10 +79,16 @@ const GuestHomepage = () => {
               Get Started
             </h4>
             <div className="flex gap-4">
-              <button className="btn bg-[#3c46ff] w-52 h-12 text-white px-10 py-2 rounded-md">
+              <button
+                className="btn bg-[#3c46ff] w-52 h-12 text-white px-10 py-2 rounded-md"
+                onClick={handleGithubLogin}
+              >
                 Github
               </button>
-              <button className="btn bg-[#3c46ff] h-12 w-52 text-white px-10 py-2 rounded-md">
+              <button
+                className="btn bg-[#3c46ff] h-12 w-52 text-white px-10 py-2 rounded-md"
+                onClick={handleGoogle}
+              >
                 Google
               </button>
             </div>
