@@ -9,7 +9,9 @@ const Homepage = () => {
   if (user) {
     navigate("/userhome");
   }
-  navigate("/auth/login");
+  if (!user) {
+    navigate("/auth/login");
+  }
 };
 
 export default Homepage;
