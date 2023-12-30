@@ -22,7 +22,12 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, googleAuthProvider);
-      Swal.fire("Google Login Succesful");
+      Swal.fire({
+        title: "Google Login Successful",
+        customClass: {
+          background: "bg-gray-500",
+        },
+      });
       setUser(result.user);
       return result;
     } catch (error) {
@@ -35,7 +40,7 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, githubAuthProvider);
-      Swal.fire("Github Login Succesful");
+      Swal.fire("Github Login Successful");
       setUser(result.user);
       return result;
     } catch (error) {
