@@ -33,6 +33,36 @@ app.get("/getUsers", (req, res) => {
   });
 });
 
+app.post("/addUser", (req, res) => {
+  const { email, username } = req.body;
+
+  client.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [email],
+    (err, result) => {
+      if (!err) {
+        if (result.rows.length > 0) {
+          res.status(409).json({ error: "Email already exists" });
+        } else {
+          client.query(
+            `INSERT INTO users(username, email) VALUES($1, $2)`,
+            [username, email],
+            (err, result) => {
+              if (!err) {
+                res.json(result.rows);
+              } else {
+                res.status(500).json({ error: err.message });
+              }
+            }
+          );
+        }
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+});
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
