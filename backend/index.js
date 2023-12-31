@@ -35,10 +35,10 @@ app.get("/getUsers", (req, res) => {
 
 app.post("/addUser", (req, res) => {
   const { email, username } = req.body;
-
+  const userEmail = email.toLowerCase().replace(/\./g, "");
   client.query(
     `SELECT * FROM users WHERE email = $1`,
-    [email],
+    [userEmail],
     (err, result) => {
       if (!err) {
         if (result.rows.length > 0) {
@@ -46,7 +46,7 @@ app.post("/addUser", (req, res) => {
         } else {
           client.query(
             `INSERT INTO users(username, email) VALUES($1, $2)`,
-            [username, email],
+            [username, userEmail],
             (err, result) => {
               if (!err) {
                 res.json(result.rows);
@@ -55,6 +55,55 @@ app.post("/addUser", (req, res) => {
               }
             }
           );
+        }
+      } else {
+        res.status(500).json({ error: err.message });
+      }
+    }
+  );
+});
+
+app.post("/createConversation", (req, res) => {
+  const { title, user, question } = req.body;
+  const is_shared = false;
+  console.log(title, user, question);
+  const userEmail = user.toLowerCase().replace(/\./g, "");
+
+  client.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [userEmail],
+    (err, userResult) => {
+      if (!err) {
+        if (userResult.rows.length > 0) {
+          const userId = userResult.rows[0].user_id;
+          console.log(userId);
+          client.query(
+            `INSERT INTO conversations (title, user_id, is_shared) VALUES ($1, $2, $3) RETURNING conversation_id`,
+            [title, userId, is_shared],
+            (err, conversationResult) => {
+              if (!err) {
+                client.query(
+                  `INSERT INTO messages ( conversation_id, user_id, message_text) VALUES ($1, $2, $3)`,
+                  [
+                    conversationResult.rows[0].conversation_id,
+                    userId,
+                    question,
+                  ],
+                  (err, messageResult) => {
+                    if (!err) {
+                      res.json(messageResult.rows);
+                    } else {
+                      res.status(500).json({ error: err.message });
+                    }
+                  }
+                );
+              } else {
+                res.status(500).json({ error: err.message });
+              }
+            }
+          );
+        } else {
+          res.status(404).json({ error: "User not found" });
         }
       } else {
         res.status(500).json({ error: err.message });
