@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../AuthProvider/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -282,12 +282,17 @@ const UserHompage = () => {
     "Science Fiction: Exploring New Worlds",
     "Social Impact Projects and Initiatives",
   ];
+  const [questions, setQuestions] = useState(qstn);
   const navigate = useNavigate();
   const { logout, user, loading } = useContext(AuthContext);
   const [showUserModal, setShowUserModal] = useState(false);
   const [query, setQuery] = useState("");
-
-  const [questions, setQuestions] = useState(qstn);
+  const chatboxRef = useRef(null);
+  useEffect(() => {
+    if (chatboxRef.current) {
+      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+    }
+  }, [questions]);
 
   const handleAskBtn = () => {
     const characters =
@@ -388,7 +393,10 @@ const UserHompage = () => {
           ></FontAwesomeIcon>
         </button>
         <div>
-          <div className="h-screen overflow-y-auto py-24 px-48">
+          <div
+            ref={chatboxRef}
+            className="h-screen chatbox overflow-y-auto py-24 px-48"
+          >
             {questions.map((question, id) => (
               <div key={id} className="">
                 <div className="mb-8">
