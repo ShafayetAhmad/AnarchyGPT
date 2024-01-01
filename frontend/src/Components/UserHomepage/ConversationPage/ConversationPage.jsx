@@ -11,6 +11,7 @@ const ConversationPage = () => {
   const [messages, setMessages] = useState([]);
   const chatboxRef = useRef(null);
   const { logout, user, loading } = useContext(AuthContext);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     axiosPublic
@@ -21,36 +22,26 @@ const ConversationPage = () => {
       });
   }, [conversationId]);
   const handleAskBtn = async () => {
-    setMessages([
-      ...messages,
-      {
-        messages_id: messages[messages.length - 1].messages_id + 1,
-        conversation_id: currentConversationID,
-        user_id: 1,
-        message_text: query,
-        timestamp: new Date().toISOString().slice(11, -1),
-      },
-    ]);
-    if (!currentConversationID) {
-      await axiosPublic
-        .post("/createConversation", {
+    if (messages.length === 0) {
+      axiosPublic
+        .post("/askFirstMessage", {
+          conversationId: conversationId,
           title: query,
-          user: user.email,
-          question: query,
+          email: user.email,
         })
         .then((res) => {
           console.log(res.data);
-          setCurrentConversationID(res.data);
+          setMessages([...messages, res.data[0], res.data[1]]);
         });
     } else {
-      await axiosPublic
+      axiosPublic
         .post("/addMessage", {
-          conversationId: currentConversationID,
+          conversationId: conversationId,
           question: query,
         })
         .then((res) => {
           console.log(res.data);
-          setMessages([...messages, res.data]);
+          setMessages([...messages, res.data[0], res.data[1]]);
         });
     }
 
@@ -65,7 +56,6 @@ const ConversationPage = () => {
       </button>
 
       <div>
-        hello
         <div>
           <div
             ref={chatboxRef}

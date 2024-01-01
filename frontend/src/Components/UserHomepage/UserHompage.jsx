@@ -6,15 +6,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faGear,
   faRightFromBracket,
-  faSearch,
-  faShareFromSquare,
   faSquarePen,
 } from "@fortawesome/free-solid-svg-icons";
 import { faRocketchat } from "@fortawesome/free-brands-svg-icons";
 import { axiosPublic } from "../axiosPublic/axiosPublic";
+import axios from "axios";
 
 const UserHompage = () => {
+  const [newConversation, setNewConversation] = useState(false);
   const navigate = useNavigate();
+
+  const { logout, user, loading } = useContext(AuthContext);
+
   const handleConversationSwitch = (conversationId) => {
     console.log(conversations);
     if (conversations.some((item) => item.conversation_id === conversationId)) {
@@ -29,6 +32,13 @@ const UserHompage = () => {
       });
   };
 
+  if (newConversation) {
+    axiosPublic.get(`/getConversations?userMail=${user?.email}`).then((res) => {
+      setConversations(res.data);
+      setNewConversation(false);
+    });
+  }
+
   const [currentConversationID, setCurrentConversationID] = useState(null);
   const [messages, setMessages] = useState([]);
   axiosPublic.get("/getUsers").then((res) => {
@@ -37,29 +47,57 @@ const UserHompage = () => {
 
   const [conversations, setConversations] = useState([]);
 
-  const { logout, user, loading } = useContext(AuthContext);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [query, setQuery] = useState("");
-  const chatboxRef = useRef(null);
-  useEffect(() => {
-    if (chatboxRef.current) {
-      chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
-    }
+  const handleCreateConversation = () => {
+    axiosPublic
+      .post("/createConversation", {
+        title: "New Conversation",
+        user: user?.email,
+      })
+      .then((res) => {
+        console.log(res.data);
+        setConversations([
+          ...conversations,
+          {
+            conversation_id: res.data,
+            title: "New Conversation",
+            is_shared: false,
+            user_id: null,
+          },
+        ]);
+        navigate(`/chat/${res.data}`);
+      });
 
-    axiosPublic.get("/getConversations").then((res) => {
+    axiosPublic.get(`/getConversations?userMail=${user?.email}`).then((res) => {
       console.log(res.data);
       setConversations(res.data);
     });
+  };
 
-    if (currentConversationID) {
-      axiosPublic
-        .get(`/getQuestions?conversationId=${currentConversationID}`)
-        .then((res) => {
-          console.log(res.data);
-          setQuestions(res.data);
-        });
+  const [showUserModal, setShowUserModal] = useState(false);
+
+  const chatboxRef = useRef(null);
+  useEffect(() => {
+    if (user) {
+      if (chatboxRef.current) {
+        chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+      }
+      console.log(user);
+      axiosPublic.get(`getConversations?userMail=${user.email}`).then((res) => {
+        console.log(res.data);
+        setConversations(res.data);
+      });
+
+      if (currentConversationID) {
+        axiosPublic
+          .get(`/getQuestions?conversationId=${currentConversationID}`)
+          .then((res) => {
+            console.log(res.data);
+            setQuestions(res.data);
+          });
+      }
     }
-  }, []);
+  }, [user]);
+
   console.log(messages);
 
   const handleLogout = () => {
@@ -76,7 +114,10 @@ const UserHompage = () => {
       <div className="col-span-2 bg-black ">
         <div className="flex justify-between flex-col h-full">
           <div className="text-white px-2 py-4">
-            <button className="flex justify-between  w-full border-2 border-slate-500 px-4 py-2 rounded-lg">
+            <button
+              onClick={handleCreateConversation}
+              className="flex justify-between  w-full border-2 border-slate-500 px-4 py-2 rounded-lg"
+            >
               <div className="flex">
                 <FontAwesomeIcon icon={faRocketchat} size="xl" />
                 <p className="text-white font-medium text-xl ml-3">New chat</p>
@@ -142,7 +183,10 @@ const UserHompage = () => {
           </div>
         </div>
       </div>
-      <Outlet></Outlet>
+      <Outlet
+        newConversation={newConversation}
+        setNewConversation={setNewConversation}
+      ></Outlet>
     </div>
   );
 };
