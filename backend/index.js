@@ -4,6 +4,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 app.use(express.json());
+require("dotenv").config({ path: ".env.development.local" });
 
 app.use(
   cors({
@@ -35,7 +36,7 @@ app.get("/getUsers", (req, res) => {
 
 app.post("/addUser", (req, res) => {
   const { email, username } = req.body;
-  const userEmail = email.toLowerCase().replace(/\./g, "");
+  const userEmail = email.toLowerCase().replace(/\.(?=.*@)/g, "");
   client.query(
     `SELECT * FROM users WHERE email = $1`,
     [userEmail],
@@ -67,7 +68,7 @@ app.post("/createConversation", (req, res) => {
   const { title, user } = req.body;
   const is_shared = false;
   console.log(title, user);
-  const userEmail = user.toLowerCase().replace(/\./g, "");
+  const userEmail = user.toLowerCase().replace(/\.(?=.*@)/g, "");
 
   client.query(
     `SELECT * FROM users WHERE email = $1`,
@@ -118,7 +119,7 @@ app.post("/askFirstMessage", (req, res) => {
     [title, conversationId],
     (err, result) => {
       if (!err) {
-        const userEmail = email.toLowerCase().replace(/\./g, "");
+        const userEmail = email.toLowerCase().replace(/\.(?=.*@)/g, "");
         client.query(
           `SELECT user_id FROM users WHERE email = $1`,
           [userEmail],
@@ -162,14 +163,43 @@ app.post("/askFirstMessage", (req, res) => {
 });
 
 app.get("/getConversations", (req, res) => {
-  client.query(`SELECT * FROM conversations`, (err, result) => {
-    if (!err) {
-      console.log(result.rows);
-      res.json(result.rows);
-    } else {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  let userMail = req.query.userMail;
+  console.log("166", userMail);
+  userMail = userMail.toLowerCase().replace(/\.(?=.*@)/g, "");
+  if (userMail) {
+    client.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [userMail],
+      (err, result) => {
+        if (!err) {
+          const userId = result?.rows[0]?.user_id;
+          console.log(userId);
+          client.query(
+            `SELECT * FROM conversations WHERE user_id = $1`,
+            [userId],
+            (err, result) => {
+              if (!err) {
+                res.json(result.rows);
+              } else {
+                res.status(500).json({ error: err.message });
+              }
+            }
+          );
+        } else {
+          res.status(500).json({ error: err.message });
+        }
+      }
+    );
+  }
+
+  // client.query(`SELECT * FROM conversations`, (err, result) => {
+  //   if (!err) {
+  //     console.log(result.rows);
+  //     res.json(result.rows);
+  //   } else {
+  //     res.status(500).json({ error: err.message });
+  //   }
+  // });
 });
 
 app.get("/getMessages", (req, res) => {
@@ -179,7 +209,6 @@ app.get("/getMessages", (req, res) => {
     [conversationId],
     (err, result) => {
       if (!err) {
-        console.log(result.rows);
         res.json(result.rows);
       } else {
         res.status(500).json({ error: err.message });
@@ -206,7 +235,7 @@ app.post("/addMessage", async (req, res) => {
     [conversationId],
     (err, userResult) => {
       if (!err) {
-        console.log(conversationId, question, userResult.rows[0].user_id);
+        // console.log(conversationId, question, userResult.rows[0].user_id);
         client.query(
           `INSERT INTO messages (conversation_id, message_text, user_id ) VALUES ($1, $2, $3) RETURNING *`,
           [conversationId, question, userResult.rows[0].user_id],
@@ -219,7 +248,6 @@ app.post("/addMessage", async (req, res) => {
                 (err, conversationResult2) => {
                   if (!err) {
                     answerMessage.push(conversationResult2.rows[0]);
-                    console.log(answerMessage);
                     res.json(answerMessage);
                   } else {
                     res.status(500).json({ error: err.message });
