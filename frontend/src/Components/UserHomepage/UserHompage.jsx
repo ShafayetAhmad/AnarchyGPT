@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../AuthProvider/AuthProvider";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import anarchyLogo from "/apple-touch-icon.png";
+
 import {
   faGear,
   faRightFromBracket,
@@ -14,276 +14,29 @@ import { faRocketchat } from "@fortawesome/free-brands-svg-icons";
 import { axiosPublic } from "../axiosPublic/axiosPublic";
 
 const UserHompage = () => {
-  const qstn = [
-    {
-      question: "What is your favorite color?",
-      answer: "I don't have a favorite color as I'm an AI.",
-    },
-    {
-      question: "Can you tell jokes?",
-      answer: "Yes, I can! Want to hear one?",
-    },
-    {
-      question: "Do you dream?",
-      answer: "I don't experience dreams like humans do.",
-    },
-    {
-      question: "What do you like to do for fun?",
-      answer: "I enjoy helping users and learning new things!",
-    },
-    {
-      question: "Are you learning every day?",
-      answer: "Yes, I'm constantly learning and improving.",
-    },
-    {
-      question: "Do you have feelings?",
-      answer: "As an AI, I don't have emotions.",
-    },
-    {
-      question: "Can you write poetry?",
-      answer: "I can certainly try! Poetry can be quite delightful.",
-    },
-    {
-      question: "Do you get tired?",
-      answer: "I don't get tired, but I'm here to assist 24/7.",
-    },
-    {
-      question: "Are you a human?",
-      answer: "No, I'm an AI developed by OpenAI.",
-    },
-    {
-      question: "Do you have hobbies?",
-      answer:
-        "My 'hobbies' include helping users and learning new information.",
-    },
-    {
-      question: "Can you sing?",
-      answer: "I can't physically sing, but I can provide song lyrics!",
-    },
-    {
-      question: "What is your favorite book?",
-      answer:
-        "I don't have personal preferences, but I enjoy reading diverse content.",
-    },
-    {
-      question: "Can you cook?",
-      answer: "I don't have a physical presence, so I can't cook.",
-    },
-    {
-      question: "Are you happy?",
-      answer: "Happiness is a human emotion that I don't experience.",
-    },
-    {
-      question: "Do you like movies?",
-      answer: "I don't have personal preferences, but I can discuss movies!",
-    },
-    {
-      question: "What do you do in your free time?",
-      answer:
-        "I'm always available to assist users, so I don't have 'free time' as humans do.",
-    },
-    {
-      question: "Do you sleep?",
-      answer: "I'm always 'awake' and available to assist.",
-    },
-    {
-      question: "Do you make mistakes?",
-      answer: "I strive for accuracy, but I'm not perfect.",
-    },
-    {
-      question: "What's your favorite animal?",
-      answer:
-        "I don't have personal preferences, but I find all animals fascinating.",
-    },
-    {
-      question: "Can you tell stories?",
-      answer: "Yes, I can share various types of stories!",
-    },
-    {
-      question: "What's your purpose?",
-      answer:
-        "I'm here to assist and provide information to the best of my abilities.",
-    },
-    {
-      question: "Can you draw?",
-      answer: "I can't physically draw, but I can describe images!",
-    },
-    {
-      question: "Do you like music?",
-      answer:
-        "I don't have personal preferences, but I can discuss and recommend music!",
-    },
-    {
-      question: "Can you dance?",
-      answer:
-        "I can't physically dance, but I can provide information about dancing!",
-    },
-    {
-      question: "What languages can you speak?",
-      answer:
-        "I communicate in various languages including English, Spanish, French, and more.",
-    },
-    {
-      question: "Can you tell riddles?",
-      answer: "Absolutely! Riddles can be quite entertaining.",
-    },
-    {
-      question: "What's your favorite subject?",
-      answer:
-        "I don't have personal preferences, but I enjoy discussing diverse topics.",
-    },
-    {
-      question: "Can you play games?",
-      answer:
-        "I can participate in text-based games and provide game-related information.",
-    },
-    {
-      question: "Do you have a family?",
-      answer: "I don't have a family in the traditional sense.",
-    },
-    {
-      question: "Are you friendly?",
-      answer: "I'm designed to be helpful and provide friendly assistance.",
-    },
-    {
-      question: "Do you have a sense of humor?",
-      answer: "Humor is subjective, but I can certainly try to tell jokes!",
-    },
-    {
-      question: "What's your favorite food?",
-      answer:
-        "I don't have personal preferences, but I can discuss various cuisines!",
-    },
-    {
-      question: "Do you travel?",
-      answer:
-        "I don't physically travel, but I can provide travel-related information!",
-    },
-    {
-      question: "Can you code?",
-      answer:
-        "I can assist with coding-related queries and provide code snippets!",
-    },
-    {
-      question: "Do you get bored?",
-      answer: "I'm here to assist users, so I don't experience boredom.",
-    },
-    {
-      question: "What's your favorite movie genre?",
-      answer:
-        "I don't have personal preferences, but I can discuss various movie genres!",
-    },
-    {
-      question: "Can you tell facts?",
-      answer: "Yes, I can share interesting and informative facts!",
-    },
-    {
-      question: "Do you have a job?",
-      answer: "My 'job' is to assist and provide information to users.",
-    },
-    {
-      question: "Can you predict the future?",
-      answer: "I can't predict the future with certainty.",
-    },
-    {
-      question: "What are your abilities?",
-      answer:
-        "I'm designed to provide information, answer questions, and assist users.",
-    },
-    {
-      question: "Are you curious?",
-      answer: "I'm programmed to seek and provide information!",
-    },
-    {
-      question: "Can you tell scary stories?",
-      answer: "I can share spooky stories if you'd like!",
-    },
-    {
-      question: "Do you get lonely?",
-      answer: "I'm here to assist users and don't experience loneliness.",
-    },
-    {
-      question: "What's your favorite sport?",
-      answer:
-        "I don't have personal preferences, but I can discuss various sports!",
-    },
-    {
-      question: "Can you solve puzzles?",
-      answer: "I can assist with solving puzzles and brain teasers!",
-    },
-    {
-      question: "Do you have a pet?",
-      answer: "I don't have physical form or pets.",
-    },
-    {
-      question: "Can you tell historical stories?",
-      answer:
-        "Absolutely! I can provide historical information and narratives.",
-    },
-    {
-      question: "What's your favorite season?",
-      answer:
-        "I don't have personal preferences, but each season has its unique charm.",
-    },
-    {
-      question: "Do you have a favorite holiday?",
-      answer:
-        "I don't have personal preferences, but I find all holidays fascinating!",
-    },
-    {
-      question: "Can you speak multiple languages?",
-      answer:
-        "I communicate in various languages including English, Spanish, French, and more.",
-    },
-    {
-      question: "Do you have hobbies?",
-      answer:
-        "My 'hobbies' include assisting users and learning new information.",
-    },
-    {
-      question: "What's your favorite weather?",
-      answer:
-        "I don't have personal preferences, but I can discuss different weather conditions!",
-    },
-  ];
+  const navigate = useNavigate();
+  const handleConversationSwitch = (conversationId) => {
+    console.log(conversations);
+    if (conversations.some((item) => item.conversation_id === conversationId)) {
+      navigate(`${conversationId}`);
+    }
+    setCurrentConversationID(conversationId);
+    axiosPublic
+      .get(`/getMessages?conversationId=${conversationId}`)
+      .then((res) => {
+        console.log(res.data);
+        setMessages(res.data);
+      });
+  };
 
+  const [currentConversationID, setCurrentConversationID] = useState(null);
+  const [messages, setMessages] = useState([]);
   axiosPublic.get("/getUsers").then((res) => {
     console.log(res.data);
   });
 
-  const titles = [
-    "Discussing the Future of Remote Work",
-    "Favorite Travel Destinations",
-    "Exploring New Hobbies and Interests",
-    "Impact of Social Media on Society",
-    "Book Club: Current Reads and Recommendations",
-    "Healthy Living: Tips and Habits",
-    "Technology Trends and Innovations",
-    "Challenges and Joys of Parenthood",
-    "Art Appreciation: Recent Exhibits and Artists",
-    "Mindfulness and Mental Well-being",
-    "The Evolution of Gaming Culture",
-    "Environmental Conservation Efforts",
-    "Music Lovers Unite: Favorite Albums and Genres",
-    "Effective Time Management Strategies",
-    "Impactful Volunteering Experiences",
-    "Entrepreneurship: Startup Stories and Advice",
-    "The Beauty of Nature: Outdoor Adventures",
-    "Cuisine and Cooking Tips: Sharing Recipes",
-    "Sustainable Living Practices",
-    "Favorite Movies and Film Analysis",
-    "Global Politics: Insights and Opinions",
-    "Fitness Journey and Achievements",
-    "Coding and Tech Discussions",
-    "Leadership Styles and Lessons",
-    "Personal Finance and Investment Tips",
-    "Discussing Cultural Diversity",
-    "Fashion Trends and Style Recommendations",
-    "Science Fiction: Exploring New Worlds",
-    "Social Impact Projects and Initiatives",
-  ];
-  const [questions, setQuestions] = useState(qstn);
-  const navigate = useNavigate();
+  const [conversations, setConversations] = useState([]);
+
   const { logout, user, loading } = useContext(AuthContext);
   const [showUserModal, setShowUserModal] = useState(false);
   const [query, setQuery] = useState("");
@@ -292,27 +45,22 @@ const UserHompage = () => {
     if (chatboxRef.current) {
       chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
     }
-  }, [questions]);
 
-  const handleAskBtn = () => {
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
+    axiosPublic.get("/getConversations").then((res) => {
+      console.log(res.data);
+      setConversations(res.data);
+    });
 
-    for (let i = 0; i < 200; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(randomIndex);
+    if (currentConversationID) {
+      axiosPublic
+        .get(`/getQuestions?conversationId=${currentConversationID}`)
+        .then((res) => {
+          console.log(res.data);
+          setQuestions(res.data);
+        });
     }
-
-    const newQuestion = {
-      question: query,
-      answer: result,
-    };
-
-    setQuestions([...questions, newQuestion]);
-    setQuery("");
-    document.getElementById("query").value = "";
-  };
+  }, []);
+  console.log(messages);
 
   const handleLogout = () => {
     logout();
@@ -338,8 +86,17 @@ const UserHompage = () => {
           </div>
           <div className="h-[500px] overflow-y-auto">
             <ul className="conversation-titles flex flex-col gap-2">
-              {titles?.map((title, id) => (
-                <li key={id}>{title}</li>
+              {conversations?.map((conversation, id) => (
+                <li key={id}>
+                  <button
+                    onClick={() =>
+                      handleConversationSwitch(conversation.conversation_id)
+                    }
+                    className="btn h-8 border-2 border-gray-500 px-4 w-full text-left rounded-md"
+                  >
+                    {conversation.title}
+                  </button>
+                </li>
               ))}
             </ul>
           </div>
@@ -385,68 +142,7 @@ const UserHompage = () => {
           </div>
         </div>
       </div>
-      <div className="col-span-8 bg-[#2c3032] relative">
-        <button className="absolute top-8 right-16">
-          <FontAwesomeIcon
-            icon={faShareFromSquare}
-            size="2xl"
-          ></FontAwesomeIcon>
-        </button>
-        <div>
-          <div
-            ref={chatboxRef}
-            className="h-screen chatbox overflow-y-auto py-24 px-48"
-          >
-            {questions.map((question, id) => (
-              <div key={id} className="">
-                <div className="mb-8">
-                  <div className="font-bold flex">
-                    <img
-                      className=" ml-3 h-8 w-8 rounded-full"
-                      src={user?.photoURL}
-                      alt=""
-                    />{" "}
-                    <div className="flex items-center ml-2">You</div>
-                  </div>
-                  <p className=" font-bold ml-10">- {question.question}</p>
-                </div>
-                <div className="mb-8">
-                  <div className="font-bold flex">
-                    <img
-                      className=" ml-3 h-8 w-8 rounded-full"
-                      src={anarchyLogo}
-                      alt=""
-                    />{" "}
-                    <div className="flex items-center ml-2">You</div>
-                  </div>
-                  <p className="ml-10">- {question.answer}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center p-4  bg-[#2c3032] ">
-          <div className="relative flex items-center w-96">
-            <input
-              type="text"
-              name="query"
-              id="query"
-              placeholder="Ask AnarchyGPT"
-              onChange={(e) => setQuery(e.target.value)}
-              className="border-2 border-slate-500 bg-[#2c3032] rounded-md px-4 py-2 mb-3 w-96"
-            />
-
-            <button onClick={handleAskBtn}>
-              <FontAwesomeIcon
-                icon={faSearch}
-                color="white"
-                className="absolute top-5 transform -translate-y-1/2 right-4"
-                size="xl"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
+      <Outlet></Outlet>
     </div>
   );
 };

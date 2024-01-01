@@ -7,7 +7,7 @@ const Homepage = () => {
   const navigate = useNavigate();
   if (loading) return <h1>Loading...</h1>;
   if (user) {
-    navigate("/userhome");
+    navigate("/chat");
   }
   if (!user) {
     navigate("/auth/login");

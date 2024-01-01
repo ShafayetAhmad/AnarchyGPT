@@ -49,7 +49,7 @@ const GuestHomepage = () => {
   ];
   if (loading) return <h1>Loading...</h1>;
   if (user) {
-    navigate("/userhome");
+    navigate("/chat");
   }
   return (
     <div className="grid grid-cols-10">

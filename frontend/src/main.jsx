@@ -7,6 +7,7 @@ import Homepage from "./Components/Homepage/Homepage";
 import GuestHomepage from "./Components/GuestHomepage/GuestHomepage";
 import UserHompage from "./Components/UserHomepage/UserHompage";
 import AuthProvider from "./Components/AuthProvider/AuthProvider";
+import ConversationPage from "./Components/UserHomepage/ConversationPage/ConversationPage";
 
 const router = createBrowserRouter([
   {
@@ -22,8 +23,14 @@ const router = createBrowserRouter([
         element: <GuestHomepage></GuestHomepage>,
       },
       {
-        path: "/userhome",
+        path: "/chat",
         element: <UserHompage></UserHompage>,
+        children: [
+          {
+            path: "/chat/:id",
+            element: <ConversationPage></ConversationPage>,
+          },
+        ],
       },
     ],
   },

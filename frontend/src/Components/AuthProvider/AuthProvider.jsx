@@ -10,6 +10,7 @@ import {
   signOut,
 } from "firebase/auth";
 import Swal from "sweetalert2";
+import { axiosPublic } from "../axiosPublic/axiosPublic";
 
 export const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
@@ -29,6 +30,14 @@ const AuthProvider = ({ children }) => {
         },
       });
       setUser(result.user);
+      axiosPublic
+        .post("/addUser", {
+          email: result.user.email,
+          username: result.user.displayName,
+        })
+        .then((res) => {
+          console.log(res);
+        });
       return result;
     } catch (error) {
       console.log(error.message);
